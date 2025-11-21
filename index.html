@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="description" content="一个简洁、纯静态的个人导航站">
 <meta name="keywords" content="xg-nav,纯静态导航,简约导航">
-<title>🧭 导航</title>
+<title>🧭导航</title>
 <style>
 * {
   margin: 0;
@@ -209,11 +209,6 @@ header h1 {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-header h1::before {
-  content: '🧭';
-  margin-right: 12px;
 }
 
 /* 主题切换按钮 */
@@ -583,6 +578,7 @@ footer {
   }
 }
 </style>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
 </head>
 <body>
 <!-- 密码验证遮罩 -->
@@ -600,13 +596,9 @@ footer {
 
 <!-- 主内容 -->
 <div id="main-content">
-  <header id="top">
-    <h1>我的导航</h1>
-  </header>
-  
+  <header id="top"><h1></h1></header>
   <button id="theme-toggle" aria-label="切换深浅色模式">🌗</button>
   <button id="back-to-top" aria-label="返回顶部">👆</button>
-  
   <div class="search-container">
     <div class="search-box">
       <select class="search-engine-select" id="search-engine-select">
@@ -633,22 +625,15 @@ footer {
     </div>
     <div class="search-results-count" id="search-results-count"></div>
   </div>
-  
-  <main id="nav-container">
-    <div class="loading">⚡ 加载中...</div>
-  </main>
-  
-  <footer>
-    <small>© 2024 我的导航站 | 简洁 · 高效 · 美观</small>
-  </footer>
+  <main id="nav-container"><div class="loading">⚡ 加载中...</div></main>
+  <footer><small></small></footer>
 </div>
 
 <script>
-// 配置密码（请修改为您自己的密码）
-const CORRECT_PASSWORD = '123456';
+// ========== 密码验证功能 ==========
+const CORRECT_PASSWORD = '123456'; // 修改为你的密码
 const PASSWORD_KEY = 'nav_password_verified';
 
-// 密码验证
 const passwordOverlay = document.getElementById('password-overlay');
 const passwordInput = document.getElementById('password-input');
 const passwordSubmit = document.getElementById('password-submit');
@@ -667,7 +652,8 @@ function checkPassword() {
 function showMainContent() {
   passwordOverlay.style.display = 'none';
   mainContent.style.display = 'block';
-  initNavigation();
+  // 密码验证通过后，加载原有的 nav.js
+  loadOriginalScript();
 }
 
 // 验证密码
@@ -682,11 +668,18 @@ function verifyPassword() {
     passwordInput.value = '';
     passwordInput.focus();
     
-    // 3秒后隐藏错误提示
     setTimeout(() => {
       passwordError.style.display = 'none';
     }, 3000);
   }
+}
+
+// 加载原有的 nav.js 脚本
+function loadOriginalScript() {
+  const script = document.createElement('script');
+  script.src = 'js/nav.js?v=1.0.0';
+  script.defer = true;
+  document.body.appendChild(script);
 }
 
 // 事件监听
@@ -699,160 +692,6 @@ passwordInput.addEventListener('keypress', (e) => {
 
 // 页面加载时检查密码
 checkPassword();
-
-// 导航功能初始化
-function initNavigation() {
-  // 主题切换
-  const themeToggle = document.getElementById('theme-toggle');
-  const currentTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', currentTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const theme = document.documentElement.getAttribute('data-theme');
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-  });
-
-  // 返回顶部
-  const backToTop = document.getElementById('back-to-top');
-  
-  window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 300) {
-      backToTop.style.display = 'flex';
-    } else {
-      backToTop.style.display = 'none';
-    }
-  });
-
-  backToTop.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  // 搜索功能
-  const searchInput = document.getElementById('search-input');
-  const searchButton = document.getElementById('search-button');
-  const searchClear = document.getElementById('search-clear');
-  const searchSelect = document.getElementById('search-engine-select');
-
-  searchInput.addEventListener('input', () => {
-    searchClear.style.display = searchInput.value ? 'block' : 'none';
-    filterLinks();
-  });
-
-  searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchClear.style.display = 'none';
-    filterLinks();
-  });
-
-  searchButton.addEventListener('click', performSearch);
-  searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      performSearch();
-    }
-  });
-
-  function performSearch() {
-    const query = searchInput.value.trim();
-    if (!query) return;
-
-    const selectedOption = searchSelect.options[searchSelect.selectedIndex];
-    const searchUrl = selectedOption.getAttribute('data-url');
-    
-    // 判断是否为URL
-    if (query.match(/^https?:\/\/.+/) || query.match(/^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/)) {
-      window.open(query.startsWith('http') ? query : 'https://' + query, '_blank');
-    } else {
-      window.open(searchUrl + encodeURIComponent(query), '_blank');
-    }
-  }
-
-  // 过滤链接
-  function filterLinks() {
-    const query = searchInput.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.link-card');
-    let visibleCount = 0;
-
-    cards.forEach(card => {
-      const name = card.querySelector('.link-name')?.textContent.toLowerCase() || '';
-      const desc = card.querySelector('.link-desc')?.textContent.toLowerCase() || '';
-      
-      if (name.includes(query) || desc.includes(query)) {
-        card.style.display = 'flex';
-        visibleCount++;
-      } else {
-        card.style.display = 'none';
-      }
-    });
-
-    const resultsCount = document.getElementById('search-results-count');
-    if (query) {
-      resultsCount.textContent = `找到 ${visibleCount} 个结果`;
-    } else {
-      resultsCount.textContent = '';
-    }
-  }
-
-  // 模拟加载导航数据
-  loadNavigationData();
-}
-
-// 加载导航数据
-function loadNavigationData() {
-  const container = document.getElementById('nav-container');
-  
-  // 示例数据
-  const demoData = [
-    {
-      category: '常用工具',
-      links: [
-        { name: 'GitHub', desc: '全球最大代码托管平台', url: 'https://github.com', icon: '💻' },
-        { name: 'Stack Overflow', desc: '程序员问答社区', url: 'https://stackoverflow.com', icon: '📚' },
-        { name: 'MDN Web Docs', desc: 'Web开发文档', url: 'https://developer.mozilla.org', icon: '📖' },
-        { name: 'CodePen', desc: '前端代码分享平台', url: 'https://codepen.io', icon: '✏️' }
-      ]
-    },
-    {
-      category: '设计资源',
-      links: [
-        { name: 'Dribbble', desc: '设计师作品展示', url: 'https://dribbble.com', icon: '🎨' },
-        { name: 'Behance', desc: 'Adobe设计社区', url: 'https://behance.net', icon: '🖼️' },
-        { name: 'Unsplash', desc: '免费高质量图片', url: 'https://unsplash.com', icon: '📷' },
-        { name: 'Figma', desc: '在线UI设计工具', url: 'https://figma.com', icon: '🎭' }
-      ]
-    },
-    {
-      category: '学习平台',
-      links: [
-        { name: 'Coursera', desc: '在线课程平台', url: 'https://coursera.org', icon: '🎓' },
-        { name: 'edX', desc: '名校公开课', url: 'https://edx.org', icon: '📚' },
-        { name: 'freeCodeCamp', desc: '免费编程学习', url: 'https://freecodecamp.org', icon: '💡' },
-        { name: 'LeetCode', desc: '算法刷题平台', url: 'https://leetcode.com', icon: '🧩' }
-      ]
-    }
-  ];
-
-  // 渲染导航
-  setTimeout(() => {
-    container.innerHTML = demoData.map(category => `
-      <div class="nav-category">
-        <h2 class="category-title">${category.category}</h2>
-        <div class="links-grid">
-          ${category.links.map(link => `
-            <a href="${link.url}" class="link-card" target="_blank" rel="noopener noreferrer">
-              <div class="link-icon">${link.icon}</div>
-              <div class="link-info">
-                <div class="link-name">${link.name}</div>
-                <div class="link-desc">${link.desc}</div>
-              </div>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
-  }, 800);
-}
 </script>
 </body>
 </html>
