@@ -1,191 +1,61 @@
 <!DOCTYPE html>
-<html lang="zh" data-theme="light">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="一个简洁、纯静态的个人导航站">
+<meta name="keywords" content="xg-nav,纯静态导航,简约导航">
 <title>🧭导航</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- 关键CSS内联，避免阻塞渲染 -->
 <style>
-:root{
-  --bg:#f5f6fa;
-  --text:#222;
-  --card-bg:#fff;
-  --radius:18px;
-  --shadow:0 6px 20px rgba(0,0,0,0.08);
-}
-[data-theme="dark"]{
-  --bg:#1a1b1e;
-  --text:#eee;
-  --card-bg:#2b2c2f;
-  --shadow:0 8px 25px rgba(0,0,0,0.35);
-}
-body{
-  margin:0;padding:0;
-  font-family:'Inter',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-header{
-  text-align:center;
-  padding:60px 20px 20px;
-  font-size:2.2rem;
-  font-weight:600;
-}
-.search-wrapper{
-  width:100%;display:flex;justify-content:center;margin-top:10px;
-}
-.search-box{
-  background:var(--card-bg);
-  box-shadow:var(--shadow);
-  border-radius:var(--radius);
-  display:flex;
-  padding:12px;
-  width:90%;max-width:580px;
-  gap:10px;
-}
-.search-box select,
-.search-box input{
-  border:none;outline:none;background:transparent;color:var(--text);
-  font-size:1rem;
-}
-.search-box input{flex:1;}
-.search-box button{
-  border:none;background:none;cursor:pointer;color:var(--text);
-}
-#nav-container{
-  max-width:1100px;margin:40px auto;padding:0 20px;
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px;
-}
-.nav-card{
-  background:var(--card-bg);
-  padding:22px;border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  text-decoration:none;
-  color:var(--text);
-  transition:transform .2s;
-}
-.nav-card:hover{
-  transform:translateY(-5px);
-}
-.theme-toggle{
-  position:fixed;right:20px;bottom:20px;
-  background:var(--card-bg);
-  padding:12px;border-radius:50%;
-  box-shadow:var(--shadow);
-  cursor:pointer;
-}
-/* 密码遮罩 */
-#lock-screen{
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:var(--bg);
-  display:flex;justify-content:center;align-items:center;
-  z-index:9999;
-}
-#lock-box{
-  background:var(--card-bg);
-  padding:30px;border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  width:90%;max-width:360px;text-align:center;
-}
-#lock-box input{
-  width:100%;padding:12px;margin-top:15px;
-  border-radius:10px;border:1px solid #ccc;
-  background:transparent;color:var(--text);
-}
-#lock-box button{
-  margin-top:15px;width:100%;padding:12px;
-  border:none;border-radius:10px;
-  background:#4a6cf7;color:#fff;cursor:pointer;
-}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg-color);color:var(--text-color);transition:background-color 0.3s,color 0.3s}:root{--bg-color:#fff;--text-color:#333;--border-color:#e0e0e0;--card-bg:#fff;--card-shadow:0 2px 8px rgba(0,0,0,0.1)}[data-theme="dark"]{--bg-color:#1a1a1a;--text-color:#e0e0e0;--border-color:#333;--card-bg:#2a2a2a;--card-shadow:0 2px 8px rgba(0,0,0,0.3)}.loading{text-align:center;padding:2rem;font-size:2rem}.spinner{display:inline-block;width:20px;height:20px;border:3px solid var(--border-color);border-radius:50%;border-top-color:var(--text-color);animation:spin 1s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}
 </style>
+
+<!-- 预加载关键资源 -->
+<link rel="preload" href="css/style.css?v=1.0.0" as="style">
+<link rel="preload" href="js/nav.js?v=1.0.0" as="script">
+<link rel="preload" href="config.json" as="fetch" crossorigin>
+<link rel="preload" href="data/links.txt" as="fetch" crossorigin>
+
+<!-- 异步加载完整CSS -->
+<link rel="stylesheet" href="css/style.css?v=1.0.0" media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="css/style.css?v=1.0.0"></noscript>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
 </head>
 <body>
-<div id="lock-screen">
-  <div id="lock-box">
-    <h2>请输入访问密码</h2>
-    <input type="password" id="pwd-input" placeholder="输入密码">
-    <button id="pwd-btn">进入</button>
-    <p id="pwd-msg" style="color:red;height:20px;margin-top:10px;"></p>
-  </div>
-</div>
+<header id="top"><h1></h1></header>
+<button id="theme-toggle" aria-label="切换深浅色模式">🌗</button>
+<button id="back-to-top" aria-label="返回顶部">👆</button>
 
-<header>XG🧭导航</header>
-
-<div class="search-wrapper">
+<div class="search-container">
   <div class="search-box">
-    <select id="engine">
-      <option value="https://www.bing.com/search?q=">Bing</option>
-      <option value="https://www.baidu.com/s?wd=">百度</option>
-      <option value="https://www.google.com/search?q=">Google</option>
+    <select class="search-engine-select" id="search-engine-select">
+      <option value="bing" data-url="https://www.bing.com/search?q=">Bing</option>
+      <option value="baidu" data-url="https://www.baidu.com/s?wd=">百度</option>
+      <option value="google" data-url="https://www.google.com/search?q=">Google</option>
+      <option value="duckduckgo" data-url="https://duckduckgo.com/?q=">DuckDuckGo</option>
+      <option value="github" data-url="https://github.com/search?q=">GitHub</option>
+      <option value="docker" data-url="https://hub.docker.com/search?q=">Docker</option>
     </select>
-    <input id="kw" placeholder="搜索或输入网址...">
-    <button id="go">🔍</button>
+    <div class="search-input-area">
+      <input type="text" class="search-input" id="search-input" placeholder="搜索或输入网址..." autocomplete="off">
+      <button class="search-clear" id="search-clear" aria-label="清空搜索">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <button class="search-button" id="search-button" aria-label="搜索">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </button>
   </div>
-</div>
+  <div class="search-results-count" id="search-results-count"></div>
+</div><main id="nav-container"><div class="loading">⚡ 加载中...</div></main><footer><small></small></footer>
 
-<main id="nav-container"></main>
-
-<button class="theme-toggle" id="theme-toggle">🌗</button>
-
-<script>
-/* ---- 密码 SHA256 ---- */
-async function sha256(text){
-  const data=new TextEncoder().encode(text);
-  const hash=await crypto.subtle.digest('SHA-256',data);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-const CORRECT_HASH = "cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8"; // 123 SHA256 示例（替换）
-
-(async ()=>{
-  const saved = localStorage.getItem('nav_pwd_ok');
-  if(saved === CORRECT_HASH){
-    document.getElementById('lock-screen').style.display='none';
-  }
-})();
-
-document.getElementById('pwd-btn').onclick = async ()=>{
-  const pwd = document.getElementById('pwd-input').value;
-  const hash = await sha256(pwd);
-  if(hash === CORRECT_HASH){
-    localStorage.setItem('nav_pwd_ok',hash);
-    document.getElementById('lock-screen').style.display='none';
-  }else{
-    document.getElementById('pwd-msg').innerText='密码错误';
-  }
-};
-
-/* ---- 搜索 ---- */
-const go=document.getElementById('go');
-go.onclick=()=>{
-  const url=document.getElementById('engine').value+encodeURIComponent(document.getElementById('kw').value);
-  window.open(url);
-};
-
-/* ---- 主题切换 ---- */
-document.getElementById('theme-toggle').onclick=()=>{
-  const now=document.documentElement.getAttribute('data-theme');
-  const next=now==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme',next);
-  localStorage.setItem('theme',next);
-};
-
-const savedTheme=localStorage.getItem('theme');
-if(savedTheme){document.documentElement.setAttribute('data-theme',savedTheme)}
-
-/* ---- 导航数据加载 ---- */
-const navs=[
-  {name:"GitHub",url:"https://github.com"},
-  {name:"Docker Hub",url:"https://hub.docker.com"},
-  {name:"Cloudflare",url:"https://dash.cloudflare.com"}
-];
-
-const box=document.getElementById('nav-container');
-navs.forEach(n=>{
-  box.innerHTML += `<a class='nav-card' href='${n.url}' target='_blank'>${n.name}</a>`;
-});
-</script>
+  <script src="js/nav.js?v=1.0.0" defer></script>
 </body>
 </html>
